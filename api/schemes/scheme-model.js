@@ -143,10 +143,10 @@ async function findSteps(scheme_id) {
     .leftJoin("steps as st", "sc.scheme_id", "st.scheme_id")
     .select("st.step_id", "st.step_number", "instructions", "sc.scheme_name")
     .where("sc.scheme_id", scheme_id)
-    .orderBy("step_number")
+    .orderBy("step_number");
 
-  if (!rows[0].step_id) return []
-  return rows
+  if (!rows[0].step_id) return [];
+  return rows;
 }
 
 function add(scheme) {
@@ -154,10 +154,11 @@ function add(scheme) {
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
- return db('schemes').insert(scheme)
- .then(([scheme_id]) => {
-  return db("schemes").where("scheme_id", scheme_id).first()
- })
+  return db("schemes")
+    .insert(scheme)
+    .then(([scheme_id]) => {
+      return db("schemes").where("scheme_id", scheme_id).first();
+    });
 }
 
 function addStep(scheme_id, step) {
@@ -167,6 +168,18 @@ function addStep(scheme_id, step) {
     and resolves to _all the steps_ belonging to the given `scheme_id`,
     including the newly created one.
   */
+  return db("steps")
+    .insert({
+      ...step,
+      scheme_id,
+    })
+    .then(() => {
+      return db("steps as st")
+        .join("schemes as sc", "sc.scheme_id", "st.scheme_id")
+        .select("step_id", "step_number", "instructions", "scheme_name")
+        .orderBy("step_number")
+        .where("sc.scheme_id", scheme_id);
+    });
 }
 
 module.exports = {
