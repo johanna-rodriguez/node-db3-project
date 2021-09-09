@@ -101,7 +101,7 @@ async function findById(scheme_id) {
   const result = {
     scheme_id: rows[0].scheme_id,
     scheme_name: rows[0].scheme_name,
-    steps: [],
+    steps: []
   };
 
   rows.forEach((row) => {
